@@ -1,4 +1,4 @@
-import ipaddress_v4
+import ipaddress/ipaddress_v4
 
 echo "# IPaddressV4 Nim module"
 echo ""
@@ -7,13 +7,22 @@ echo "## Testing invalid IP Address"
 echo ""
 
 try:
-    echo "try: IPAddressV4().init(\"192.168.666.12\")"
-    var myIP = IPAddressV4().init("192.168.666.12")
+    echo "try: newIPAddressV4(\"192.168.666.12\")"
+    var myIP = newIPAddressV4("192.168.666.12")
 
     # Avoid compiler complains about unused variables...
     myIP = myIP + 1
 except ValueError as e:
     echo "except ValueError as e (echo e.msg): " & e.msg
+
+echo ""
+
+echo "## Testing invalid IP network"
+
+try:
+    var myInvalidNet = newIPNetworkV4(newIPAddressV4("192.168.1.0"), 34)
+except ValueError as e:
+    echo "try newIPNetworkV4(newIPAddressV4(\"192.168.1.0\"), 34): " & e.msg
 
 echo ""
 
@@ -38,18 +47,18 @@ except ValueError as e:
 echo ""
 
 let IP: string = "192.168.0.12"
-let CIDR: int = 24 
-var myIP = IPAddressV4()
+let CIDR: int = 24
+var myIP: IPAddressV4
 
 try:
     echo "# In try/except, IPAddressV4 usage"
     echo ""
 
-    echo "IPAddressV4().init(" & IP & ")"
+    echo "newIPAddressV4(" & IP & ")"
     echo ""
-    myIP = IPAddressV4().init(IP)
+    myIP = newIPAddressV4(IP)
 
-    var myNetwork = IPNetworkV4(ip: myIP, cidr: CIDR)
+    var myNetwork = newIPNetworkV4(myIP, CIDR)
 
     echo "## IPAddressV4 methods"
     echo ""
@@ -65,31 +74,35 @@ try:
     echo "## IPAddressV4 overloaded operators"
     echo ""
 
-    echo "$(IPAddressV4().init(\"" & IP & "\")): ", myIP
+    echo "$(newIPAddressV4(\"" & IP & "\")): ", myIP
 
     myIP = myIP + 10
-    echo "IPAddressV4.init(\"" & IP & "\") + 10: ", myIP
+    echo "newIPAddressV4(\"" & IP & "\") + 10: ", myIP
 
     myIP = myIP - 10
-    echo "IPAddressV4.init(\"192.168.1.22\") - 10: ", myIP
+    echo "newIPAddressV4(\"192.168.1.22\") - 10: ", myIP
 
-    let myIP2 = IPAddressV4().init("192.168.0.22")
-    echo "IPAddressV4.init(\"" & IP & "\") == IPAddressV4.init(\"192.168.0.22\"): ", myIP == myIP2
-    echo "IPAddressV4.init(\"" & IP & "\") == IPAddressV4.init(\"192.168.0.12\"): ", myIP == myIP
+    let myIP2 = newIPAddressV4("192.168.0.22")
+    echo "newIPAddressV4(\"" & IP & "\") == newIPAddressV4(\"192.168.0.22\"): ",
+            myIP == myIP2
+    echo "newIPAddressV4(\"" & IP & "\") == newIPAddressV4(\"192.168.0.12\"): ",
+            myIP == myIP
 
-    echo "IPAddressV4.init(\"" & IP & "\") > IPAddressV4.init(\"192.168.0.22\") : ", myIP > myIP2
-    echo "IPAddressV4.init(\"" & IP & "\") < IPAddressV4.init(\"192.168.0.22\") : ", myIP < myIP2
+    echo "newIPAddressV4(\"" & IP & "\") > newIPAddressV4(\"192.168.0.22\") : ",
+            myIP > myIP2
+    echo "newIPAddressV4(\"" & IP & "\") < newIPAddressV4(\"192.168.0.22\") : ",
+            myIP < myIP2
 
 
-    echo "IPAddressV4.init(\"" & IP & "\") in IPNetwork(ip: \"",
-                myNetwork.networkAddress, "\"), cidr: ", CIDR, " : ",
+    echo "newIPAddressV4(\"" & IP & "\") in newIPNetwork(newIPAddressV4(\"",
+                myNetwork.networkAddress, "\"), ", CIDR, "): ",
                 myIP in myNetwork
 
     let CIDR2 = 32 
-    var myNetwork2 = IPNetworkV4(ip: IPAddressV4().init("192.168.0.22"), cidr: CIDR2)
+    var myNetwork2 = newIPNetworkV4(newIPAddressV4("192.168.0.22"), CIDR2)
 
-    echo "IPAddressV4.init(\"" & IP & "\") in IPNetwork(ip: \"",
-                myNetwork2.networkAddress, "\"), cidr: ", CIDR2, " : ",
+    echo "newIPAddressV4(\"" & IP & "\") in newIPNetwork(newIPAddressV4(\"",
+                myNetwork2.networkAddress, "\"), ", CIDR2, "): ",
                 myIP in myNetwork2
 
 
@@ -97,7 +110,7 @@ try:
 
     echo "# In try/except IPNetworkV4 usage"
 
-    echo "Network for ", myIP, "/", myNetwork.cidr
+    echo "Network for ", myIP, "/", myNetwork.getCidr()
     echo ""
 
     echo "## IPNetworkV4 methods"
